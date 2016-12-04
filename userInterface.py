@@ -15,6 +15,7 @@ from Tkinter import *
 import random
 import string
 import speech_recognition as sr
+from  AppKit import NSSpeechSynthesizerE
 
 import os
 from os import path
@@ -231,7 +232,7 @@ def recognizeSpeech(audio):
 
 def record():
     FORMAT = pyaudio.paInt16
-    CHANNELS, RATE, RECORD_SECONDS, CHUNK = 2, 44100, 5, 1024
+    CHANNELS, RATE, RECORD_SECONDS, CHUNK = 2, 44100, 8, 1024
     WAVE_OUTPUT_FILENAME = "audioFile.wav"
     p = pyaudio.PyAudio()
 
@@ -417,7 +418,7 @@ def responseScreenTimerFired(data):
 def responseScreenRedrawAll(canvas, data):
     data.probDict = processAllTexts()
     numVerses = 4
-    if data.responseGenerated == False:
+    if data.responseGenerated == False: #generates a response
         data.response = ""
         for x in range(numVerses):
             data.response += (makeRapVerse(data.speechList, data.probDict) 
@@ -428,7 +429,7 @@ def responseScreenRedrawAll(canvas, data):
                                                     fill = data.backgroundColor)
         canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
             + data.response, fill = "white", font = "Helvetica 20")
-        response = formatResponseForSpeech(data.reponse)
+        response = formatResponseForSpeech(data.response)
         os.system("say" + " " + response)
         data.responseSpoken = True
     else:
