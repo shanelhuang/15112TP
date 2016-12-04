@@ -15,7 +15,6 @@ from Tkinter import *
 import random
 import string
 import speech_recognition as sr
-from  AppKit import NSSpeechSynthesizerE
 
 import os
 from os import path
@@ -424,22 +423,18 @@ def responseScreenRedrawAll(canvas, data):
             data.response += (makeRapVerse(data.speechList, data.probDict) 
                                                                     + " \n ")
         data.responseGenerated = True
-    if data.responseSpoken == False:
-        canvas.create_rectangle(0, 0, data.width, data.height, 
-                                                    fill = data.backgroundColor)
-        canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
-            + data.response, fill = "white", font = "Helvetica 20")
-        response = formatResponseForSpeech(data.response)
-        os.system("say" + " " + response)
-        data.responseSpoken = True
+        break
     else:
         canvas.create_rectangle(0, 0, data.width, data.height, 
                                                     fill = data.backgroundColor)
         canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
             + data.response, fill = "white", font = "Helvetica 20")
-            
-def formatResponseForSpeech(response):
-    return response.replace("\n", " ")
+        break
+    if data.responseSpoken == False:
+        response = data.response.replace("\n", " ")
+        os.system("say" + " " + response)
+        data.responseSpoken = True
+        break
     
 ###########################################
 # Generate Verse
