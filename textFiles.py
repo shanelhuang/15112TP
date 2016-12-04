@@ -14,7 +14,7 @@ import os
 from os import path
 import string
 import random
-#import pronouncing
+import pronouncing
 
 ###########################################
 # Generate Verse

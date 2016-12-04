@@ -33,6 +33,7 @@ def init(data):
     data.recordButtonPressed = False
     data.responseButtonPressed = False
     data.responseGenerated = False
+    data.responseSpoken = False
     data.speech = ""
     data.speechList = []
     data.probDict = dict()
@@ -419,13 +420,26 @@ def responseScreenRedrawAll(canvas, data):
     if data.responseGenerated == False:
         data.response = ""
         for x in range(numVerses):
-            data.response += (makeRapVerse(data.speechList, data.probDict) + "\n")
+            data.response += (makeRapVerse(data.speechList, data.probDict) 
+                                                                    + " \n ")
         data.responseGenerated = True
-    canvas.create_rectangle(0, 0, data.width, data.height, 
-                                                fill = data.backgroundColor)
-    canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
-        + data.response, fill = "white", font = "Helvetica 20")
-
+    if data.responseSpoken == False:
+        canvas.create_rectangle(0, 0, data.width, data.height, 
+                                                    fill = data.backgroundColor)
+        canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
+            + data.response, fill = "white", font = "Helvetica 20")
+        response = formatResponseForSpeech(data.reponse)
+        os.system("say" + " " + response)
+        data.responseSpoken = True
+    else:
+        canvas.create_rectangle(0, 0, data.width, data.height, 
+                                                    fill = data.backgroundColor)
+        canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
+            + data.response, fill = "white", font = "Helvetica 20")
+            
+def formatResponseForSpeech(response):
+    return response.replace("\n", " ")
+    
 ###########################################
 # Generate Verse
 ###########################################
