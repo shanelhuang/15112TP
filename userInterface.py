@@ -1,34 +1,39 @@
 ###########################################
-# User Interface
+# Rap Battle Bot
 #
 # NAME: Shanel Huang
 # ANDREW ID: shanelh
 # SECTION: F
 # DATE: November 2016
 #
-# Description: set up user interface using tkinter
-#
 ###########################################
 
-from Tkinter import *
+#for user interface
+from Tkinter import * 
 
+#for random and string operations
 import random
 import string
-import speech_recognition as sr
 
+#for reading files
 import os
 from os import path
 
+#for processing audio 
 import pyaudio
 import wave
 from struct import pack
 
+#for speech to text
+import speech_recognition as sr
+
+#for rhyme dictionary
 import pronouncing 
 
 ###########################################
     
 def init(data):
-    data.currentScreen = "home"
+    data.currentScreen = "home" #keeps track of current mode
     data.backgroundColor = "black"
     data.mouseX, data.mouseY = 0, 0
     data.beginButtonPressed = False
@@ -89,6 +94,7 @@ def homeScreenMousePressed(event, data):
     data.mouseY = event.y
 
 def beginButtonPressed(data):
+    #returns true if user clicks on begin button
     beginMargin, beginHeight = 70, 40
     xbound1, xbound2 = data.width/2-beginMargin, data.width/2+beginMargin
     ybound1, ybound2 = data.height/2, data.height/2+beginHeight
@@ -101,8 +107,10 @@ def homeScreenKeyPressed(event, data):
 
 def homeScreenTimerFired(data):
     beginButtonPressed(data)
+    #when begin button is pressed, app moves on to audio screen
     if data.beginButtonPressed == True:
-        data.mouseX = 0
+        #reset mouse to prevent double clicking on next screen
+        data.mouseX = 0 
         data.mouseY = 0
         data.currentScreen = "audio"
 
@@ -115,6 +123,7 @@ def homeScreenRedrawAll(canvas, data):
     directions, directionsMargin = "click to start", 25
     canvas.create_text(data.width/2, data.height/2-directionsMargin, 
             text = directions, fill = "white", font = "Helvetica 20 bold")
+    #draw begin button 
     beginMargin, beginHeight = 70, 40
     canvas.create_rectangle(data.width/2-beginMargin, data.height/2, 
             data.width/2+beginMargin, data.height/2+beginHeight, fill = "gray")
@@ -138,12 +147,12 @@ def audioScreenTimerFired(data):
     recordButtonPressed(data)
 
 def recordButtonPressed(data):
+    #returns true when record button is pressed
     r, c = 20, 30
-    #print(data.mouseX, data.mouseY)
-    xbound1, xbound2 = data.width/2-r, data.height/2+c-r
-    ybound1, ybound2 = data.height/2+c-r, data.height/2+c+r
-    #print("xbound: " + str(xbound1), str(xbound2))
-    #print("ybound: " + str(ybound1), str(ybound2))
+    xbound1 = data.width/2-r
+    xbound2 = data.width/2+r
+    ybound1 = data.height/2+c-r
+    ybound2 = data.height/2+c+r
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.recordButtonPressed = True
@@ -156,17 +165,20 @@ def audioScreenRedrawAll(canvas, data):
         directions = "Press the record button to start\n recording. Then, start speaking."
         canvas.create_text(data.width/2, data.height/2-directionsMargin, 
             text = directions, fill = "white", font = "Helvetica 20 bold")
+        #draw srecord button
         r, c = 20, 30
         canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
                 data.height/2+c+r, fill = "red", outline = "black")
         canvas.create_text(data.width/2, data.height/2+c, text = "REC")
-    else:
+    else: #record button was pressed
         record()
-        speechTuple = convertSpeechToText()
+        speechTuple = convertSpeechToText() #(speech as list, speech for display)
         data.speech = speechTuple[1]
         data.speechList = speechTuple[0]
-        data.mouseX = 0
+        #reset mouse setting to prevent double click on next page 
+        data.mouseX = 0 
         data.mouseY = 0
+        #automatically moves to processing screen after done recording
         data.currentScreen = "processing"
 
 ###########################################
@@ -203,6 +215,8 @@ def removePunctuation(text):
             newString += char
     return newString
     
+# modified from python speech_recognition module audio transcribing example
+# https://github.com/Uberi/speech_recognition/blob/master/examples
 def readAudioFile():
     # obtain path to "english.wav" in the same folder as this script
     audioFile = path.join(path.dirname(path.realpath(__file__)), 
@@ -212,7 +226,9 @@ def readAudioFile():
     with sr.AudioFile(audioFile) as source:
         audio = r.record(source) # read the entire audio file
         return audio
-   
+
+# modified from python speech_recognition module audio transcribing example
+# https://github.com/Uberi/speech_recognition/blob/master/examples   
 def recognizeSpeech(audio):
     # recognize speech using Google Speech Recognition
     r = sr.Recognizer()

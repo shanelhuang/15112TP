@@ -121,7 +121,7 @@ def removePunctuation(text):
     newString = ""
     punct = string.punctuation
     for char in text:
-        if char in punct:
+            if char in punct:
             pass
         else:
             newString += char
@@ -156,7 +156,7 @@ def getRhymes(word): #returns list of words that rhyme with given word
     return rhymeList
         
 probDict = processAllTexts()
-speechList = ["cars", "this", "work", "monkey", "drink", "girl", "money"]
+speechList = ["hi", "my", "name", "is", "drink", "money"]
 print(makeRapVerse(speechList, probDict))
 
 
