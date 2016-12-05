@@ -23,6 +23,8 @@ import pyaudio
 import wave
 from struct import pack
 
+import pronouncing 
+
 ###########################################
     
 def init(data):
@@ -423,18 +425,15 @@ def responseScreenRedrawAll(canvas, data):
             data.response += (makeRapVerse(data.speechList, data.probDict) 
                                                                     + " \n ")
         data.responseGenerated = True
-        break
     else:
         canvas.create_rectangle(0, 0, data.width, data.height, 
                                                     fill = data.backgroundColor)
         canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
             + data.response, fill = "white", font = "Helvetica 20")
-        break
     if data.responseSpoken == False:
         response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
         data.responseSpoken = True
-        break
     
 ###########################################
 # Generate Verse
