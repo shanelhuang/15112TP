@@ -21,24 +21,24 @@ import pronouncing
 ###########################################
 
 def makeRapVerse(speechList, probDict):
-    firstWord = -1
-    for index in range(len(speechList)):
-        word = speechList[random.randint(0, len(speechList)-1)]
-        if word in probDict:
-            firstWord = word
-            break
-    if firstWord == -1:
-        firstWord = random.choice(list(probDict.keys()))
-    verse = [firstWord]
-    verseLength = 10
+    lastWord = -1
+    for word in speechList:
+        rhymeList = getRhymes(word)
+        for wordThatRhymes in rhymeList:
+            if wordThatRhymes in probDict:
+                lastWord = word
+                break
+    if lastWord == -1: #could not find a word in dictionary that rhymes
+        lastWord = random.choice(list(probDict.keys()))
+    verse = [lastWord]
+    verseLength = 6
     for index in range(verseLength):
-        if verse == []:
-            verse.append(nextWord(firstWord, probDict))
-        else:
-            verse.append(nextWord(verse[-1], probDict))
+        afterWord = verse[0] #represents word that comes after next word found
+        verse.insert(0, prevWord(afterWord, probDict))
     return " ".join(verse)
     
-def nextWord(word, probDict):
+def prevWord(word, probDict):
+    #generates a word to go before given word
     if word not in probDict:
         return random.choice(list(probDict.keys()))
     else:
@@ -51,10 +51,6 @@ def nextWord(word, probDict):
                 return word
         return random.choice(list(probDict.keys()))
 
-def pickRandomWord(speechList):
-    index = random.randint(0, len(speechList) - 1)
-    return speechList[index]
-    
 ###########################################
 # Process Text
 ###########################################
@@ -85,6 +81,7 @@ def updateNumOccurences(text, frequencyDict):
     #level 2: maps first-second word combo to number of occurences
     freqDict = frequencyDict
     wordList = text.split(" ")
+    wordList = wordList[::-1]
     for word in wordList:
         if word == '' or word == ' ' or word == None:
             wordList.remove(word) 
@@ -152,6 +149,23 @@ def readFile(filename, mode="rt"): # taken from 15-112 course notes
     with open(filename, mode) as fin:
         return fin.read()
         
+def getRhymes(word): #returns list of words that rhyme with given word
+    rhymeList = []
+    for element in pronouncing.rhymes(word):
+        rhymeList += [str(element)]
+    return rhymeList
+        
 probDict = processAllTexts()
 speechList = ["cars", "this", "work", "monkey", "drink", "girl", "money"]
 print(makeRapVerse(speechList, probDict))
+
+
+
+"""
+
+    
+probDict = processAllTexts()
+print(probDict)
+#speechList = ["cars", "this", "work", "monkey", "drink", "girl", "money"]
+#print(makeRapVerse(speechList, probDict))
+#print(getRhymes("car"))"""
