@@ -42,7 +42,8 @@ def init(data):
     data.responseGenerated = False
     data.responseSpoken = False
     data.responseScreenDrawn = False
-    data.recordTime = 5
+    data.resetButtonPressed = False
+    data.recordTime = 3
     data.speech = ""
     data.speechList = []
     data.probDict = dict()
@@ -408,7 +409,8 @@ def updateNumOccurences(text, frequencyDict):
         secondWord = wordList[i+1]
         if firstWord in freqDict: #first word already in dictionary
             if secondWord in freqDict[firstWord]: #first-second combo exists
-                freqDict[firstWord][secondWord] = freqDict[firstWord].get(secondWord) + 1
+                freqDict[firstWord][secondWord] = (
+                                        freqDict[firstWord].get(secondWord) + 1)
             else: 
                 freqDict[firstWord][secondWord] = 1
         else: #found new first word
@@ -479,7 +481,8 @@ def responseScreenKeyPressed(event, data):
     pass
 
 def responseScreenTimerFired(data):
-    if resetButtonPressed == True:
+    resetButtonPressed(data)
+    if data.resetButtonPressed == True:
         init(data)
 
 def responseScreenRedrawAll(canvas, data):
@@ -512,6 +515,9 @@ def resetButtonPressed(data):
     resetWidth, resetHeight = 125, 40
     xbound1, ybound1 = data.width-resetWidth, data.height-resetHeight
     xbound2, ybound2 = data.width, data.height
+    print(data.mouseX, data.mouseY)
+    print(xbound1, xbound2)
+    print(ybound1, ybound2)
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.resetButtonPressed = True
