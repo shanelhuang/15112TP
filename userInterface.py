@@ -162,7 +162,8 @@ def audioScreenRedrawAll(canvas, data):
         canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
         directionsMargin = 46
-        directions = "Press the record button to start\n recording. Then, start speaking."
+        directions = ("Press the record button to start" + "\n" +
+                                    "recording. Then, start speaking.")
         canvas.create_text(data.width/2, data.height/2-directionsMargin, 
             text = directions, fill = "white", font = "Helvetica 20 bold")
         #draw srecord button
@@ -191,11 +192,8 @@ def convertSpeechToText():
     text = removePunctuation(audioString)
     textListWithU = text.split(" ")
     textList = removeU(textListWithU)
-    textString = listToString(audioString)
+    textString = str(audioString)
     return (textList, textString)
-    
-def listToString(textList):
-    return str(textList)
     
 def removeU(textList):
     #remvoes U from output of speech recognition module
@@ -316,14 +314,12 @@ def processingScreenRedrawAll(canvas, data):
     margin = 100
     canvas.create_text(data.width/2, data.height/2-margin, 
                 text = words, fill = "white", font = "Helvetica 20 bold")
-    #canvas.create_text(data.width/2, data.height/2,
-     #   text = "Processing Text...", fill = "white", font = "Helvetica 20 bold")
     generateMargin, generateHeight = 100, 40
     canvas.create_rectangle(data.width/2-generateMargin, data.height/2, 
-            data.width/2+generateMargin, data.height/2+generateHeight, fill = "gray")
+        data.width/2+generateMargin, data.height/2+generateHeight, fill = "gray")
     generateTextMargin = 20
     canvas.create_text(data.width/2, data.height/2+generateTextMargin, 
-            text = "Generate Response Verse", fill = "black", font = "Helvetica 15")
+        text = "Generate Response Verse", fill = "black", font = "Helvetica 15")
         
 ###########################################
 # Process Text
