@@ -41,6 +41,8 @@ def init(data):
     data.responseButtonPressed = False
     data.responseGenerated = False
     data.responseSpoken = False
+    data.responseScreenDrawn = False
+    data.recordTime = 5
     data.speech = ""
     data.speechList = []
     data.probDict = dict()
@@ -144,6 +146,7 @@ def audioScreenKeyPressed(event, data):
     pass
 
 def audioScreenTimerFired(data):
+    timeButtonsPressed(data)
     recordButtonPressed(data)
 
 def recordButtonPressed(data):
@@ -156,7 +159,55 @@ def recordButtonPressed(data):
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.recordButtonPressed = True
-            
+
+def timeButtonsPressed(data):
+    if fiveSecButtonPressed(data):
+        data.recordTime = 5
+    if tenSecButtonPressed(data):
+        data.recordTime = 10
+    if fifteenSecButtonPressed(data):
+        data.recordTime = 15
+
+def fiveSecButtonPressed(data):
+    return
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordButtonPressed = True
+
+def tenSecButtonPressed(data):
+    return
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordButtonPressed = True
+
+def fifteenSecButtonPressed(data):
+    return
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordButtonPressed = True
+    
+def drawRecordButton(canvas, data):
+    r, c = 20, 30
+    canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
+            data.height/2+c+r, fill = "red", outline = "black")
+    canvas.create_text(data.width/2, data.height/2+c, text = "REC")    
+    
+############NEED TO FINISH#######################
+def drawTimeButtons(canvas, data):
+    marginBetweenButtons = 25
+    buttonWidth, buttonHeight = 50, 20
+    firstButton = 125
+    buttonScreenDistance = 100
+    x1, y1 = data.width/2-firstButton, buttonScreenDistance
+    x2, y2 = x1 + buttonWidth, y1 + buttonHeight
+    canvas.create_rectangle(x1, y1, x2, y2, fill = "gray")
+    canvas.create_text((x1+x2)/2, (y1+y2)/2, text = "5 sec", fill = "black", 
+                                                        font = "Helvetica 15")
+    canvas.create_rectangle(x1+buttonWidth+marginBetweenButtons, y1, 
+                    x2+buttonWidth+marginBetweenButtons, y2, fill = "gray")
+    canvas.create_rectangle(x1+2*buttonWidth+2*marginBetweenButtons, y1, x2+2*
+            buttonWidth+2*marginBetweenButtons, y2, fill = "gray")
+  
 def audioScreenRedrawAll(canvas, data):
     if data.recordButtonPressed == False:
         canvas.create_rectangle(0, 0, data.width, data.height, 
@@ -165,14 +216,11 @@ def audioScreenRedrawAll(canvas, data):
         directions = ("Press the record button to start" + "\n" +
                                     "recording. Then, start speaking.")
         canvas.create_text(data.width/2, data.height/2-directionsMargin, 
-            text = directions, fill = "white", font = "Helvetica 20 bold")
-        #draw srecord button
-        r, c = 20, 30
-        canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
-                data.height/2+c+r, fill = "red", outline = "black")
-        canvas.create_text(data.width/2, data.height/2+c, text = "REC")
+            text = directions, fill = "white", font = "Helvetica 20 bold")        
+        drawRecordButton(canvas, data)
+        #drawTimeButtons(canvas, data)
     else: #record button was pressed
-        record()
+        record(data)
         speechTuple = convertSpeechToText() #(speech as list, speech for display)
         data.speech = speechTuple[1]
         data.speechList = speechTuple[0]
@@ -246,11 +294,11 @@ def recognizeSpeech(audio):
 # modified from https://people.csail.mit.edu/hubert/pyaudio/
 ###########################################
 
-def record():
+def record(data):
     FORMAT = pyaudio.paInt16
     CHANNELS = 2
     RATE = 44100
-    RECORD_SECONDS = 8
+    RECORD_SECONDS = data.recordTime
     CHUNK = 1024
     WAVE_OUTPUT_FILENAME = "audioFile.wav"
     p = pyaudio.PyAudio()
@@ -438,13 +486,15 @@ def responseScreenRedrawAll(canvas, data):
     if data.responseGenerated == False: #creates a response
         data.response = generateResponse(data.speechList, data.probDict)
         data.responseGenerated = True
-    else:
-        canvas.create_rectangle(0, 0, data.width, data.height, 
-                                                    fill = data.backgroundColor)
-        actualResponse = "Robot Response: \n"  + data.response
-        canvas.create_text(data.width/2, data.height/2, text = actualResponse ,
-                                    fill = "white", font = "Helvetica 20")
-    if data.responseSpoken == False:
+    canvas.create_rectangle(0, 0, data.width, data.height, 
+                                                fill = data.backgroundColor)
+    actualResponse = "Robot Response: \n"  + data.response
+    canvas.create_text(data.width/2, data.height/2, text = actualResponse ,
+                                fill = "white", font = "Helvetica 20")
+    if data.responseScreenDrawn == False:
+        data.responseScreenDrawn = True
+        return
+    if data.responseSpoken == False and data.responseScreenDrawn == True:
         response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
         data.responseSpoken = True
