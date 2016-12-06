@@ -43,7 +43,7 @@ def init(data):
     data.responseSpoken = False
     data.responseScreenDrawn = False
     data.resetButtonPressed = False
-    data.recordTime = 3
+    data.recordTime = 5
     data.speech = ""
     data.speechList = []
     data.probDict = dict()
@@ -162,65 +162,11 @@ def recordButtonPressed(data):
             data.recordButtonPressed = True
 
 def timeButtonsPressed(data):
-    if fiveSecButtonPressed(data):
-        data.recordTime = 5
-    if tenSecButtonPressed(data):
-        data.recordTime = 10
-    if fifteenSecButtonPressed(data):
-        data.recordTime = 15
-
-def fiveSecButtonPressed(data):
-    return
-    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
-        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
-            data.recordButtonPressed = True
-
-def tenSecButtonPressed(data):
-    return
-    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
-        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
-            data.recordButtonPressed = True
-
-def fifteenSecButtonPressed(data):
-    return
-    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
-        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
-            data.recordButtonPressed = True
-    
-def drawRecordButton(canvas, data):
-    r, c = 20, 30
-    canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
-            data.height/2+c+r, fill = "red", outline = "black")
-    canvas.create_text(data.width/2, data.height/2+c, text = "REC")    
-    
-############NEED TO FINISH#######################
-def drawTimeButtons(canvas, data):
-    marginBetweenButtons = 25
-    buttonWidth, buttonHeight = 50, 20
-    firstButton = 125
-    buttonScreenDistance = 100
-    x1, y1 = data.width/2-firstButton, buttonScreenDistance
-    x2, y2 = x1 + buttonWidth, y1 + buttonHeight
-    canvas.create_rectangle(x1, y1, x2, y2, fill = "gray")
-    canvas.create_text((x1+x2)/2, (y1+y2)/2, text = "5 sec", fill = "black", 
-                                                        font = "Helvetica 15")
-    canvas.create_rectangle(x1+buttonWidth+marginBetweenButtons, y1, 
-                    x2+buttonWidth+marginBetweenButtons, y2, fill = "gray")
-    canvas.create_rectangle(x1+2*buttonWidth+2*marginBetweenButtons, y1, x2+2*
-            buttonWidth+2*marginBetweenButtons, y2, fill = "gray")
-  
-def audioScreenRedrawAll(canvas, data):
-    if data.recordButtonPressed == False:
-        canvas.create_rectangle(0, 0, data.width, data.height, 
-                                                fill = data.backgroundColor)
-        directionsMargin = 46
-        directions = ("Press the record button to start" + "\n" +
-                                    "recording. Then, start speaking.")
-        canvas.create_text(data.width/2, data.height/2-directionsMargin, 
-            text = directions, fill = "white", font = "Helvetica 20 bold")        
-        drawRecordButton(canvas, data)
-        #drawTimeButtons(canvas, data)
-    else: #record button was pressed
+    fiveSecButtonPressed(data)
+    tenSecButtonPressed(data)
+    fifteenSecButtonPressed(data)
+    recordButtonPressed(data)
+    if data.recordButtonPressed == True:
         record(data)
         speechTuple = convertSpeechToText() #(speech as list, speech for display)
         data.speech = speechTuple[1]
@@ -230,6 +176,87 @@ def audioScreenRedrawAll(canvas, data):
         data.mouseY = 0
         #automatically moves to processing screen after done recording
         data.currentScreen = "processing"
+        
+def fiveSecButtonPressed(data):
+    marginBetweenButtons, windowDistance = 25, 50
+    buttonWidth, buttonHeight = 75, 25
+    xbound1 = data.width/2-buttonWidth/2-buttonWidth-marginBetweenButtons
+    ybound1 = 2*windowDistance
+    xbound2 = data.width/2-buttonWidth/2-marginBetweenButtons
+    ybound2 = ybound1 + buttonHeight
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordTime = 5
+            print("time set to 5 sec")
+
+def tenSecButtonPressed(data):
+    marginBetweenButtons, windowDistance = 25, 50
+    buttonWidth, buttonHeight = 75, 25
+    xbound1, ybound1 = data.width/2-buttonWidth/2, 2*windowDistance
+    xbound2, ybound2 = xbound1 + buttonWidth, ybound1 + buttonHeight
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordTime = 10
+            print("time set to 10 sec")
+
+def fifteenSecButtonPressed(data):
+    marginBetweenButtons, windowDistance = 25, 50
+    buttonWidth, buttonHeight = 75, 25
+    xbound1 = data.width/2-buttonWidth/2+buttonWidth+marginBetweenButtons
+    ybound1 =  2*windowDistance
+    xbound2 = xbound1 + buttonWidth + marginBetweenButtons + buttonWidth
+    ybound2 = ybound1 + buttonHeight
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordTime = 15
+            print("time set to 15 sec")
+            
+def drawRecordButton(canvas, data):
+    directionsMargin = 46
+    directions = ("Press the record button to start" + "\n" +
+                                    "recording. Then, start speaking.")
+    canvas.create_text(data.width/2, data.height/2-directionsMargin, 
+        text = directions, fill = "white", font = "Helvetica 20 bold")  
+    r, c = 20, 30
+    canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
+            data.height/2+c+r, fill = "red", outline = "black")
+    canvas.create_text(data.width/2, data.height/2+c, text = "REC")    
+    
+def drawTimeButtons(canvas, data):
+    marginBetweenButtons, windowDistance = 25, 50
+    buttonWidth, buttonHeight = 75, 25
+    x1, y1 = data.width/2-buttonWidth/2, 2*windowDistance
+    x2, y2 = x1 + buttonWidth, y1 + buttonHeight
+    canvas.create_rectangle(x1, y1, x2, y2, fill = "gray")
+    tenMiddle, middleY = getMiddle(x1,x2), getMiddle(y1, y2)
+    canvas.create_text(tenMiddle, middleY, text = "10 sec", fill = "black", 
+                                                        font = "Helvetica 15")
+    canvas.create_rectangle(x1-buttonWidth-marginBetweenButtons, y1, 
+                    x1-marginBetweenButtons, y2, fill = "gray")
+    fiveMiddle = getMiddle(x1-buttonWidth-marginBetweenButtons,
+                                        x1-marginBetweenButtons)
+    canvas.create_text(fiveMiddle, middleY, text = "5 sec", fill = "black", 
+                                                        font = "Helvetica 15")
+    canvas.create_rectangle(x2+marginBetweenButtons, y1, 
+           x2 + marginBetweenButtons + buttonWidth, y2, fill = "gray")
+    fifteenMiddle = getMiddle(x2+marginBetweenButtons, 
+                                x2 + marginBetweenButtons + buttonWidth)
+    canvas.create_text(fifteenMiddle, middleY, text = "15 sec", fill = "black", 
+                                        font = "Helvetica 15")
+    
+def getMiddle(x1, x2):
+    return (x1+x2)/2
+    
+def audioScreenRedrawAll(canvas, data):
+    canvas.create_rectangle(0, 0, data.width, data.height, 
+                                                fill = data.backgroundColor)
+    drawRecordButton(canvas, data)
+    timeMessage = "Select a time duration to record for: "
+    marginBetweenButtons, windowDistance = 25, 50
+    buttonWidth, buttonHeight = 75, 25
+    canvas.create_text(data.width/2, windowDistance, text = timeMessage, 
+        fill = "white", font = "Helvetica 17 bold")
+    drawTimeButtons(canvas, data)
 
 ###########################################
 # Convert Audio File to Text
@@ -570,7 +597,7 @@ def prevWord(word, probDict):
     else:
         wordProb = probDict[word]
         randProb = random.random()
-        currentProb = 0.0
+        currentProb = 0.0 #initial probability
         for word in wordProb:
             currentProb += wordProb[word]
             if randProb <= currentProb:
@@ -583,7 +610,8 @@ def getRhymes(word): #returns list of words that rhyme with given word
         rhymeList += [str(element)]
     return rhymeList
 
-def getAceptableRhymes(word, probDict):
+def getAceptableRhymes(word, probDict): 
+    #returns a list of words that rhyme with words and are also in probDict
     acceptableRhymes = []
     rhymeList = getRhymes(word)
     for word in rhymeList:
@@ -592,8 +620,7 @@ def getAceptableRhymes(word, probDict):
     return acceptableRhymes
     
 ###########################################
-# run function modified from 15-112 
-# course notes
+# run function modified from 15-112 course notes
 ###########################################
 
 def runApp(): 
