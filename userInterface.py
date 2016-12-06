@@ -245,11 +245,15 @@ def recognizeSpeech(audio):
 
 ###########################################
 # Record Audio to a Wave File
+# modified from https://people.csail.mit.edu/hubert/pyaudio/
 ###########################################
 
 def record():
     FORMAT = pyaudio.paInt16
-    CHANNELS, RATE, RECORD_SECONDS, CHUNK = 2, 44100, 8, 1024
+    CHANNELS = 2
+    RATE = 44100
+    RECORD_SECONDS = 8
+    CHUNK = 1024
     WAVE_OUTPUT_FILENAME = "audioFile.wav"
     p = pyaudio.PyAudio()
 
@@ -351,6 +355,7 @@ def updateNumOccurences(text, frequencyDict):
     #level 2: maps first-second word combo to number of occurences
     freqDict = frequencyDict
     wordList = text.split(" ")
+    wordList = wordList[::-1] #backwards
     for word in wordList:
         if word == '' or word == ' ' or word == None:
             wordList.remove(word) 
@@ -434,18 +439,15 @@ def responseScreenTimerFired(data):
 
 def responseScreenRedrawAll(canvas, data):
     data.probDict = processAllTexts()
-    numVerses = 4
-    if data.responseGenerated == False: #generates a response
-        data.response = ""
-        for x in range(numVerses):
-            data.response += (makeRapVerse(data.speechList, data.probDict) 
-                                                                    + " \n ")
+    if data.responseGenerated == False: #creates a response
+        data.response = generateResponse(data.speechList, data.probDict)
         data.responseGenerated = True
     else:
         canvas.create_rectangle(0, 0, data.width, data.height, 
                                                     fill = data.backgroundColor)
-        canvas.create_text(data.width/2, data.height/2, text = "Robot Response: \n"  
-            + data.response, fill = "white", font = "Helvetica 20")
+        actualResponse = "Robot Response: \n"  + data.response
+        canvas.create_text(data.width/2, data.height/2, text = actualResponse ,
+                                    fill = "white", font = "Helvetica 20")
     if data.responseSpoken == False:
         response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
@@ -455,25 +457,45 @@ def responseScreenRedrawAll(canvas, data):
 # Generate Verse
 ###########################################
 
-def makeRapVerse(speechList, probDict):
-    firstWord = -1
-    for index in range(len(speechList)):
-        word = speechList[random.randint(0, len(speechList)-1)]
-        if word in probDict:
-            firstWord = word
-            break
-    if firstWord == -1:
-        firstWord = random.choice(list(probDict.keys()))
-    verse = [firstWord]
-    verseLength = 6
-    for index in range(verseLength):
-        if verse == []:
-            verse.append(nextWord(firstWord, probDict))
+def generateResponse(speechList, probDict):
+    numVerses = 4
+    response = ""
+    for x in range(numVerses):
+        if x == 0:
+            rhymeWord = getLastWord(speechList, probDict)
+            acceptableRhymeList = getAceptableRhymes(rhymeWord, probDict)
+            newLine = makeRapVerse(speechList, probDict, rhymeWord)
         else:
-            verse.append(nextWord(verse[-1], probDict))
+            rhymeWord = random.choice(acceptableRhymeList)
+            newLine = makeRapVerse(speechList, probDict, rhymeWord)
+        response += newLine + " \n "
+    return response
+
+def getLastWord(speechList, probDict):
+    #first tries to find a word that has rhymes that are also in probDict
+    lastWord = -1
+    for word in speechList:
+        rhymeList = getRhymes(word)
+        for count in range(len(rhymeList)):
+            wordThatRhymes = random.choice(rhymeList)
+            if wordThatRhymes in probDict:
+                lastWord = word
+                break
+    if lastWord == -1: #could not find a word in dictionary that rhymes
+        lastWord = random.choice(list(probDict.keys()))
+    return lastWord
+
+def makeRapVerse(speechList, probDict, rhymeWord):
+    verse = [rhymeWord]
+    smallVerseLength, longVerseLength = 6,8
+    verseLength = random.randint(smallVerseLength,longVerseLength)
+    for index in range(verseLength):
+        afterWord = verse[0] #represents word that comes after next word found
+        verse.insert(0, prevWord(afterWord, probDict))
     return " ".join(verse)
     
-def nextWord(word, probDict):
+def prevWord(word, probDict):
+    #generates a word to go before given word
     if word not in probDict:
         return random.choice(list(probDict.keys()))
     else:
@@ -485,10 +507,20 @@ def nextWord(word, probDict):
             if randProb <= currentProb:
                 return word
         return random.choice(list(probDict.keys()))
+    
+def getRhymes(word): #returns list of words that rhyme with given word
+    rhymeList = []
+    for element in pronouncing.rhymes(word):
+        rhymeList += [str(element)]
+    return rhymeList
 
-def pickRandomWord(speechList):
-    index = random.randint(0, len(speechList) - 1)
-    return speechList[index]
+def getAceptableRhymes(word, probDict):
+    acceptableRhymes = []
+    rhymeList = getRhymes(word)
+    for word in rhymeList:
+        if word in rhymeList:
+            acceptableRhymes.append(word)
+    return acceptableRhymes
     
 ###########################################
 # run function modified from 15-112 

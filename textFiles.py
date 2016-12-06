@@ -20,18 +20,38 @@ import pronouncing
 # Generate Verse
 ###########################################
 
-def makeRapVerse(speechList, probDict):
+def generateResponse(speechList, probDict):
+    numVerses = 4
+    response = ""
+    for x in range(numVerses):
+        if x == 0:
+            rhymeWord = getLastWord(speechList, probDict)
+            acceptableRhymeList = getAceptableRhymes(rhymeWord, probDict)
+            newLine = makeRapVerse(speechList, probDict, rhymeWord)
+        else:
+            rhymeWord = random.choice(acceptableRhymeList)
+            newLine = makeRapVerse(speechList, probDict, rhymeWord)
+        response += newLine + " \n "
+    return response
+
+def getLastWord(speechList, probDict):
+    #first tries to find a word that has rhymes that are also in probDict
     lastWord = -1
     for word in speechList:
         rhymeList = getRhymes(word)
-        for wordThatRhymes in rhymeList:
+        for count in range(len(rhymeList)):
+            wordThatRhymes = random.choice(rhymeList)
             if wordThatRhymes in probDict:
                 lastWord = word
                 break
     if lastWord == -1: #could not find a word in dictionary that rhymes
         lastWord = random.choice(list(probDict.keys()))
-    verse = [lastWord]
-    verseLength = 6
+    return lastWord
+
+def makeRapVerse(speechList, probDict, rhymeWord):
+    verse = [rhymeWord]
+    smallVerseLength, longVerseLength = 6,8
+    verseLength = random.randint(smallVerseLength,longVerseLength)
     for index in range(verseLength):
         afterWord = verse[0] #represents word that comes after next word found
         verse.insert(0, prevWord(afterWord, probDict))
@@ -50,7 +70,21 @@ def prevWord(word, probDict):
             if randProb <= currentProb:
                 return word
         return random.choice(list(probDict.keys()))
+    
+def getRhymes(word): #returns list of words that rhyme with given word
+    rhymeList = []
+    for element in pronouncing.rhymes(word):
+        rhymeList += [str(element)]
+    return rhymeList
 
+def getAceptableRhymes(word, probDict):
+    acceptableRhymes = []
+    rhymeList = getRhymes(word)
+    for word in rhymeList:
+        if word in rhymeList:
+            acceptableRhymes.append(word)
+    return acceptableRhymes
+    
 ###########################################
 # Process Text
 ###########################################
@@ -81,7 +115,7 @@ def updateNumOccurences(text, frequencyDict):
     #level 2: maps first-second word combo to number of occurences
     freqDict = frequencyDict
     wordList = text.split(" ")
-    wordList = wordList[::-1]
+    wordList = wordList[::-1] #backwards
     for word in wordList:
         if word == '' or word == ' ' or word == None:
             wordList.remove(word) 
@@ -121,7 +155,7 @@ def removePunctuation(text):
     newString = ""
     punct = string.punctuation
     for char in text:
-            if char in punct:
+        if char in punct:
             pass
         else:
             newString += char
@@ -149,23 +183,7 @@ def readFile(filename, mode="rt"): # taken from 15-112 course notes
     with open(filename, mode) as fin:
         return fin.read()
         
-def getRhymes(word): #returns list of words that rhyme with given word
-    rhymeList = []
-    for element in pronouncing.rhymes(word):
-        rhymeList += [str(element)]
-    return rhymeList
-        
 probDict = processAllTexts()
-speechList = ["hi", "my", "name", "is", "drink", "money"]
-print(makeRapVerse(speechList, probDict))
-
-
-
-"""
-
-    
-probDict = processAllTexts()
-print(probDict)
-#speechList = ["cars", "this", "work", "monkey", "drink", "girl", "money"]
+speechList = ["hi", "my", "name", "is", "drink"]
 #print(makeRapVerse(speechList, probDict))
-#print(getRhymes("car"))"""
+print(generateResponse(speechList, probDict))
