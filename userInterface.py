@@ -479,7 +479,8 @@ def responseScreenKeyPressed(event, data):
     pass
 
 def responseScreenTimerFired(data):
-    pass
+    if resetButtonPressed == True:
+        init(data)
 
 def responseScreenRedrawAll(canvas, data):
     data.probDict = processAllTexts()
@@ -491,6 +492,7 @@ def responseScreenRedrawAll(canvas, data):
     actualResponse = "Robot Response: \n"  + data.response
     canvas.create_text(data.width/2, data.height/2, text = actualResponse ,
                                 fill = "white", font = "Helvetica 20")
+    drawResetButton(canvas,data)
     if data.responseScreenDrawn == False:
         data.responseScreenDrawn = True
         return
@@ -498,6 +500,21 @@ def responseScreenRedrawAll(canvas, data):
         response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
         data.responseSpoken = True
+
+def drawResetButton(canvas, data):
+    resetWidth, resetHeight = 125, 40
+    x1, y1 = data.width-resetWidth, data.height-resetHeight
+    canvas.create_rectangle(x1, y1, data.width, data.height, fill = "gray")
+    canvas.create_text((x1+data.width)/2, (y1+data.height)/2, text = "RESET", 
+                                                fill = "black")
+    
+def resetButtonPressed(data):
+    resetWidth, resetHeight = 125, 40
+    xbound1, ybound1 = data.width-resetWidth, data.height-resetHeight
+    xbound2, ybound2 = data.width, data.height
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.resetButtonPressed = True
     
 ###########################################
 # Generate Verse
