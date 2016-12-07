@@ -386,6 +386,7 @@ def responseButtonPressed(data):
 def processingScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
+    data.speech = formatSpeech(data.speech)
     words = "Rap Battle Bot thinks you said: \n" + "\'" + data.speech + "\'"
     margin = 100
     canvas.create_text(data.width/2, data.height/2-margin, 
@@ -397,6 +398,16 @@ def processingScreenRedrawAll(canvas, data):
     canvas.create_text(data.width/2, data.height/2+generateTextMargin, 
         text = "Generate Response Verse", fill = "black", font = "Helvetica 15")
         
+def formatSpeech(speech):
+    #prevents text from running off the page
+    #returns a string of speech, formatted with max 5 words per line
+    newSpeech = ""
+    while len(speech.split()) > 5: 
+        newSpeech += " ".join(speech.split()[0:5]) + " \n "
+        speech = " ".join(speech.split()[5:])
+    newSpeech += " ".join(speech.split())
+    return newSpeech
+    
 ###########################################
 # Process Text
 ###########################################
@@ -699,8 +710,20 @@ def test_rhymes():
         'steakley', 'szekely', 'uniquely', 'weakley', 'weakly',
         'weekley', 'weekly', 'yeakley']
     assertEqual(expected, rhymes)
+
+def testFormatSpeech():
+    print("testing formatSpeech().........")
+    speech1 = "something with frustration when she keep saying anything stop"
+    speech2 = "something exactly five single words"
+    speech3 = "under 5 words"
+    ans1 = 'something with frustration when she \n keep saying anything stop'
+    assert(formatSpeech(speech1) == ans1)
+    assert(formatSpeech(speech2) == speech2)
+    assert(formatSpeech(speech3) == speech3)
+    print("Passed!")
     
 #testIsolateTextFiles()
 #testRemovePunctuation()
 #test_rhymes 
+testFormatSpeech()
 runApp()
