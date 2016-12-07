@@ -794,8 +794,14 @@ def prevWord(word, probDict):
     
 def getRhymes(word): #returns list of words that rhyme with given word
     rhymeList = []
-    for element in pronouncing.rhymes(word):
-        rhymeList += [str(element)]
+    rhymes = []
+    if isinstance(word, str):
+        rhymes = pronouncing.rhymes(word)
+    for element in rhymes:
+        try: 
+            rhymeList += [str(element)]
+        except:
+            print("could not parse as string")
     return rhymeList
 
 def getAceptableRhymes(word, probDict): 
@@ -827,13 +833,17 @@ def rapOffScreenTimerFired(data):
 def alternateBots(data):
     if data.verseCount == 0: #generate starting verse
         data.bot1 = generateResponse(data.speechList, data.probDict)
+        #print("bot1", data.bot1)
     else:
         data.verseCount += 1
         if data.verseCount % 2 == 1: #bot2's turn
             temp = data.bot1
+            data.bot2 = generateResponse(list(temp), data.probDict)
+            #print("bot1", temp)
         else: #bot1's turn
             temp = data.bot2
-        
+            data.bot1 = generateResponse(list(temp), data.probDict)
+            #print("bot2", temp)
     
 def rapOffScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
@@ -851,7 +861,11 @@ def rapOffScreenRedrawAll(canvas, data):
                                                 font = "Times 15 bold")
     drawRapOffBots(canvas, data)
     if data.stopButtonPressed == False:
+        print("helloE")
         drawBotResponses(canvas, data)
+        """response = data.response.replace("\n", " ")
+        os.system("say" + " " + response)
+        data.responseSpoken = True"""
 
 def stopButtonPressed(data):
     buttonWidth, buttonHeight = 50, 40
@@ -873,6 +887,7 @@ def drawRapOffBots(canvas, data):
 
 def drawBotResponses(canvas, data):
     pass
+    
 ###########################################
 # run function modified from 15-112 course notes
 ###########################################
