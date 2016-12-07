@@ -4,7 +4,7 @@
 # NAME: Shanel Huang
 # ANDREW ID: shanelh
 # SECTION: F
-# DATE: November 2016
+# DATE: Fall 2016
 #
 ###########################################
 
@@ -34,6 +34,7 @@ import pronouncing
     
 def init(data):
     data.currentScreen = "home" #keeps track of current mode
+    data.prevScreen = "home"
     data.backgroundColor = "black"
     data.mouseX, data.mouseY = 0, 0
     data.beginButtonPressed = False
@@ -43,6 +44,8 @@ def init(data):
     data.responseSpoken = False
     data.responseScreenDrawn = False
     data.resetButtonPressed = False
+    data.infoButtonPressed = False
+    data.backButtonPressed = False
     data.recordTime = 5
     data.speech = ""
     data.speechList = []
@@ -57,6 +60,8 @@ def mousePressed(event, data):
         processingScreenMousePressed(event, data)
     elif data.currentScreen == "response": 
         responseScreenMousePressed(event, data)
+    else: 
+        infoScreenMousePressed(event, data)
     
 def keyPressed(event, data):
     if data.currentScreen == "home": 
@@ -67,6 +72,8 @@ def keyPressed(event, data):
         processingScreenMousePressed(event, data)
     elif data.currentScreen == "response":
         responseScreenMousePressed(event, data)
+    else: 
+        infoScreenKeyPressed(event, data)
     
 def timerFired(data):
     if data.currentScreen == "home": 
@@ -77,6 +84,8 @@ def timerFired(data):
         processingScreenTimerFired(data)
     elif data.currentScreen == "response":
         responseScreenTimerFired(data)
+    else:
+        infoScreenTimerFired(data)
     
 def redrawAll(canvas, data):
     if data.currentScreen == "home": 
@@ -87,6 +96,8 @@ def redrawAll(canvas, data):
         processingScreenRedrawAll(canvas, data)
     elif data.currentScreen == "response":
         responseScreenRedrawAll(canvas, data)
+    else:
+        infoScreenRedrawAll(canvas, data)
 
 ###########################################
 # Home Screen Mode
@@ -110,16 +121,19 @@ def homeScreenKeyPressed(event, data):
 
 def homeScreenTimerFired(data):
     beginButtonPressed(data)
+    infoButtonPressed(data)
     #when begin button is pressed, app moves on to audio screen
     if data.beginButtonPressed == True:
         #reset mouse to prevent double clicking on next screen
         data.mouseX = 0 
         data.mouseY = 0
         data.currentScreen = "audio"
+        data.beginButtonPressed = False
 
 def homeScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
+    drawInfoButton(canvas, data)
     title, titleMargin = "RAP BATTLE BOT!", 150
     canvas.create_text(data.width/2, data.height/2-titleMargin, text = title, 
                                     fill = "white", font = "Helvetica 50 bold")
@@ -133,8 +147,87 @@ def homeScreenRedrawAll(canvas, data):
     beginTextMargin = 20
     canvas.create_text(data.width/2, data.height/2+beginTextMargin, 
             text = "begin", fill = "black", font = "Helvetica 15")
-            
+    
+###########################################
+# Info Screen Mode
+###########################################
 
+def infoScreenMousePressed(event, data):
+    data.mouseX = event.x
+    data.mouseY = event.y
+    
+def infoScreenKeyPressed(event, data):
+    pass
+    
+def infoScreenTimerFired(data):
+    backButtonPressed(data)
+    if data.backButtonPressed == True:
+        data.mouseX, data.mouseY = 0, 0
+        data.currentScreen = data.prevScreen
+        data.backButtonPressed = False
+    
+def infoScreenRedrawAll(canvas, data):
+    canvas.create_rectangle(0, 0, data.width, data.height, 
+                                                    fill = data.backgroundColor)
+    drawInfoButton(canvas, data)
+    drawBackButton(canvas, data)
+    title, titleMargin, textMargin = "INFORMATION", 100, 150
+    canvas.create_text(data.width/2, titleMargin, text = title, 
+                                    fill = "white", font = "Times 30 bold")
+    who = "WHO: Shanel Huang (andrew ID: shanelh)"
+    what = """WHAT: Rap Battle Bot is an application that generates \n
+                response rap verses according to what your say."""
+    where = "WHERE: Rap Battle Bot was developed at Carnegie Mellon University"
+    when = "WHEN: Fall Semester 2016"
+    why = "WHY: 15-112 Term Project"
+    how = ("""HOW: This program uses a Markov chain algorithm and a \n
+            collection of existing rap songs to predict a \n
+            rap verse in relation to the user's speech""")
+    textList = [who, what, where, when, why, how]
+    space = [0, 50, 105, 145, 185, 250]
+    for i in range(len(textList)):
+        canvas.create_text(data.width/2, textMargin+space[i], 
+                    text = textList[i], fill = "white", font = "Times 15" )
+
+def drawBackButton(canvas, data):
+    backWidth, backHeight = 125, 40
+    x1, y1 = data.width-backWidth, data.height-backHeight
+    canvas.create_rectangle(x1, y1, data.width, data.height, fill = "gray")
+    canvas.create_text((x1+data.width)/2, (y1+data.height)/2, text = "BACK", 
+                                                fill = "black")
+    
+def backButtonPressed(data):
+    backWidth, backHeight = 125, 40
+    xbound1, ybound1 = data.width-backWidth, data.height-backHeight
+    xbound2, ybound2 = data.width, data.height
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.backButtonPressed = True
+    
+def drawInfoButton(canvas, data):
+    margin = 15
+    radius = 20
+    canvas.create_oval(margin, data.height-margin-2*radius, margin+2*radius, 
+            data.height-margin, fill = "light blue", outline = "black")
+    x = getMiddle(margin, margin+2*radius)
+    y = getMiddle(data.height-margin-2*radius, data.height-margin)
+    canvas.create_text(x, y, text = "i", fill = "blue",font = "Times 20 italic") 
+    
+def infoButtonPressed(data):
+    margin, radius = 15, 20
+    xbound1, xbound2 = margin, margin+2*radius
+    ybound1, ybound2 = data.height-margin-2*radius, data.height-margin
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.infoButtonPressed = True
+    if data.infoButtonPressed == True:
+        #reset mouse to prevent double clicking on next screen
+        data.mouseX = 0 
+        data.mouseY = 0
+        data.prevScreen = data.currentScreen
+        data.currentScreen = "info"
+        data.infoButtonPressed = False
+    
 ###########################################
 # Audio Screen Mode
 ###########################################
@@ -147,6 +240,7 @@ def audioScreenKeyPressed(event, data):
     pass
 
 def audioScreenTimerFired(data):
+    infoButtonPressed(data)
     timeButtonsPressed(data)
     recordButtonPressed(data)
 
@@ -176,6 +270,7 @@ def timeButtonsPressed(data):
         data.mouseY = 0
         #automatically moves to processing screen after done recording
         data.currentScreen = "processing"
+        data.recordButtonPressed = False
         
 def fiveSecButtonPressed(data):
     marginBetweenButtons, windowDistance = 25, 50
@@ -245,11 +340,12 @@ def drawTimeButtons(canvas, data):
                                         font = "Helvetica 15")
     
 def getMiddle(x1, x2):
-    return (x1+x2)/2
+    return (float(x1)+x2)/2
     
 def audioScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
+    drawInfoButton(canvas, data)
     drawRecordButton(canvas, data)
     timeMessage = "Select a time duration to record for: "
     marginBetweenButtons, windowDistance = 25, 50
@@ -368,11 +464,13 @@ def processingScreenKeyPressed(event, data):
     pass
 
 def processingScreenTimerFired(data):
+    infoButtonPressed(data)
     responseButtonPressed(data)
     if data.responseButtonPressed == True:
         data.mouseX = 0
         data.mouseY = 0
         data.currentScreen = "response"
+        data.responseButtonPressed = False
 
 def responseButtonPressed(data):
     generateMargin, generateHeight = 100, 40
@@ -386,6 +484,7 @@ def responseButtonPressed(data):
 def processingScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
+    drawInfoButton(canvas, data)
     data.speech = formatSpeech(data.speech)
     words = "Rap Battle Bot thinks you said: \n" + "\'" + data.speech + "\'"
     margin = 100
@@ -426,6 +525,7 @@ def processAllTexts():
     return probDict
     
 def formatText(text):
+    #returns same text with unicode line separators removed from web files
     newText = text.lower()
     newText = removePunctuation(newText)
     newText = newText.replace("\n", " ")
@@ -519,6 +619,7 @@ def responseScreenKeyPressed(event, data):
     pass
 
 def responseScreenTimerFired(data):
+    infoButtonPressed(data)
     resetButtonPressed(data)
     if data.resetButtonPressed == True:
         init(data)
@@ -530,6 +631,7 @@ def responseScreenRedrawAll(canvas, data):
         data.responseGenerated = True
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
+    drawInfoButton(canvas, data)
     actualResponse = "Robot Response: \n"  + data.response
     canvas.create_text(data.width/2, data.height/2, text = actualResponse ,
                                 fill = "white", font = "Helvetica 20")
@@ -553,9 +655,6 @@ def resetButtonPressed(data):
     resetWidth, resetHeight = 125, 40
     xbound1, ybound1 = data.width-resetWidth, data.height-resetHeight
     xbound2, ybound2 = data.width, data.height
-    #print(data.mouseX, data.mouseY)
-    #print(xbound1, xbound2)
-    #print(ybound1, ybound2)
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.resetButtonPressed = True
@@ -635,8 +734,8 @@ def getAceptableRhymes(word, probDict):
 ###########################################
 
 def runApp(): 
-    width = 500
-    height = 500
+    width = 600
+    height = 600
     run(width, height)
     
 def run(width=400, height=400):
@@ -703,13 +802,15 @@ def testRemovePunctuation():
     assert(removePunctuation(txt1) == ans1)
     print("Passed!")
 
-def test_rhymes():
+def testGetRhymes():
+    print("tesing getRhymes().......")
     rhymes = pronouncing.rhymes("sleekly")
     expected = [
         'beakley', 'biweekly', 'bleakley', 'meekly', 'obliquely',
         'steakley', 'szekely', 'uniquely', 'weakley', 'weakly',
         'weekley', 'weekly', 'yeakley']
-    assertEqual(expected, rhymes)
+    assert(expected == rhymes)
+    print("Passed!")
 
 def testFormatSpeech():
     print("testing formatSpeech().........")
@@ -724,6 +825,7 @@ def testFormatSpeech():
     
 #testIsolateTextFiles()
 #testRemovePunctuation()
-#test_rhymes 
-testFormatSpeech()
+#testGetRhymes
+#testFormatSpeech()
+
 runApp()
