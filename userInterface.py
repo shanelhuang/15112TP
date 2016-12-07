@@ -692,8 +692,8 @@ def resetButtonPressed(data):
 # Generate Verse
 ###########################################
 
-def generateResponse(speechList, probDict):
-    numVerses = 4
+"""def generateResponse(speechList, probDict):
+    numVerses = pickVerseLength()
     response = ""
     for x in range(numVerses):
         if x == 0:
@@ -704,8 +704,32 @@ def generateResponse(speechList, probDict):
             rhymeWord = random.choice(acceptableRhymeList)
             newLine = makeRapVerse(speechList, probDict, rhymeWord)
         response += newLine + " \n "
+    return response"""
+
+def generateResponse(speechList, probDict):
+    numVerses = pickVerseLength()
+    response = ""
+    acceptableRhymeList = []
+    for x in range(numVerses):
+        if x % 2 == 0:
+            rhymeWord = getLastWord(speechList, probDict)
+            acceptableRhymeList = getAceptableRhymes(rhymeWord, probDict)
+        else:
+            if len(acceptableRhymeList) > 0:
+                rhymeWord = random.choice(acceptableRhymeList)
+            else:
+                rhymeWord = getLastWord(speechList, probDict)
+        newLine = makeRapVerse(speechList, probDict, rhymeWord)
+        response += newLine + " \n"
     return response
 
+def pickVerseLength():
+    lowerBound, upperBound = 4,8
+    lines = 1
+    while lines % 2 != 0:
+        lines = random.randint(lowerBound,upperBound)
+    return lines
+    
 def getLastWord(speechList, probDict):
     #first tries to find a word that has rhymes that are also in probDict
     lastWord = -1
@@ -716,7 +740,7 @@ def getLastWord(speechList, probDict):
             if wordThatRhymes in probDict:
                 lastWord = word
                 break
-    if lastWord == -1: #could not find a word in dictionary that rhymes
+    while lastWord == -1: #could not find a word in dictionary that rhymes
         lastWord = random.choice(list(probDict.keys()))
     return lastWord
 
