@@ -46,6 +46,7 @@ def init(data):
     data.resetButtonPressed = False
     data.infoButtonPressed = False
     data.backButtonPressed = False
+    data.skipButtonPressed = False
     data.recordTime = 5
     data.speech = ""
     data.speechList = []
@@ -146,8 +147,8 @@ def homeScreenRedrawAll(canvas, data):
             data.width/2+beginMargin, data.height/2+beginHeight, fill = "gray")
     beginTextMargin = 20
     canvas.create_text(data.width/2, data.height/2+beginTextMargin, 
-            text = "begin", fill = "black", font = "Helvetica 15")
-    
+            text = "BEGIN", fill = "black", font = "Helvetica 15")
+
 ###########################################
 # Info Screen Mode
 ###########################################
@@ -243,17 +244,7 @@ def audioScreenTimerFired(data):
     infoButtonPressed(data)
     timeButtonsPressed(data)
     recordButtonPressed(data)
-
-def recordButtonPressed(data):
-    #returns true when record button is pressed
-    r, c = 20, 30
-    xbound1 = data.width/2-r
-    xbound2 = data.width/2+r
-    ybound1 = data.height/2+c-r
-    ybound2 = data.height/2+c+r
-    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
-        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
-            data.recordButtonPressed = True
+    skipButtonPressed(data)
 
 def timeButtonsPressed(data):
     fiveSecButtonPressed(data)
@@ -307,15 +298,26 @@ def fifteenSecButtonPressed(data):
             #print("time set to 15 sec")
             
 def drawRecordButton(canvas, data):
-    directionsMargin = 46
+    directionsMargin, r = 100, 20
+    c = 25
     directions = ("Press the record button to start" + "\n" +
                                     "recording. Then, start speaking.")
     canvas.create_text(data.width/2, data.height/2-directionsMargin, 
         text = directions, fill = "white", font = "Helvetica 20 bold")  
-    r, c = 20, 30
-    canvas.create_oval(data.width/2-r, data.height/2+c-r, data.width/2+r, 
-            data.height/2+c+r, fill = "red", outline = "black")
-    canvas.create_text(data.width/2, data.height/2+c, text = "REC")    
+    canvas.create_oval(data.width/2-r, data.height/2-r-c, data.width/2+r, 
+            data.height/2+r-c, fill = "red", outline = "black")
+    canvas.create_text(data.width/2, data.height/2-c, text = "REC")    
+
+def recordButtonPressed(data):
+    #returns true when record button is pressed
+    r, c = 20, 25
+    xbound1 = data.width/2-r
+    xbound2 = data.width/2+r
+    ybound1 = data.height/2-r-c
+    ybound2 = data.height/2+r-c
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.recordButtonPressed = True
     
 def drawTimeButtons(canvas, data):
     marginBetweenButtons, windowDistance = 25, 50
@@ -346,14 +348,41 @@ def audioScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
                                                 fill = data.backgroundColor)
     drawInfoButton(canvas, data)
+    drawTimeButtons(canvas, data)
     drawRecordButton(canvas, data)
     timeMessage = "Select a time duration to record for: "
     marginBetweenButtons, windowDistance = 25, 50
     buttonWidth, buttonHeight = 75, 25
     canvas.create_text(data.width/2, windowDistance, text = timeMessage, 
         fill = "white", font = "Helvetica 17 bold")
-    drawTimeButtons(canvas, data)
-
+    drawSkipRecord(canvas, data)
+    
+def drawSkipRecord(canvas, data):
+    skipMargin = 30
+    option = "OR skip recording and generate a random verse: "
+    canvas.create_text(data.width/2, data.height/2 + skipMargin, 
+                    fill = "white", text = option, font = "Helvetica 17 bold")
+    buttonWidth, buttonHeight = 50, 40
+    startx, stopx = data.width/2-buttonWidth, data.width/2+buttonWidth
+    starty = data.height/2+skipMargin + buttonHeight
+    stopy = starty + buttonHeight
+    canvas.create_rectangle(startx, starty, stopx, stopy, fill = "gray")
+    canvas.create_text(getMiddle(startx, stopx), getMiddle(starty, stopy), 
+            text = "SKIP", fill = "black")
+    
+def skipButtonPressed(data):
+    skipMargin = 30
+    buttonWidth, buttonHeight = 50, 40
+    xbound1, xbound2 = data.width/2-buttonWidth, data.width/2+buttonWidth
+    ybound1 = data.height/2+skipMargin + buttonHeight
+    ybound2 = ybound1 + buttonHeight
+    if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
+        if data.mouseY >= ybound1 and data.mouseY <= ybound2:
+            data.skipButtonPressed = True
+    if data.skipButtonPressed == True:
+        data.currentScreen = "response"
+        data.skipButtonPressed = False
+    
 ###########################################
 # Convert Audio File to Text
 ###########################################
