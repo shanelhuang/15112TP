@@ -187,7 +187,7 @@ def fiveSecButtonPressed(data):
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.recordTime = 5
-            print("time set to 5 sec")
+            #print("time set to 5 sec")
 
 def tenSecButtonPressed(data):
     marginBetweenButtons, windowDistance = 25, 50
@@ -197,7 +197,7 @@ def tenSecButtonPressed(data):
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.recordTime = 10
-            print("time set to 10 sec")
+            #print("time set to 10 sec")
 
 def fifteenSecButtonPressed(data):
     marginBetweenButtons, windowDistance = 25, 50
@@ -209,7 +209,7 @@ def fifteenSecButtonPressed(data):
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.recordTime = 15
-            print("time set to 15 sec")
+            #print("time set to 15 sec")
             
 def drawRecordButton(canvas, data):
     directionsMargin = 46
@@ -542,9 +542,9 @@ def resetButtonPressed(data):
     resetWidth, resetHeight = 125, 40
     xbound1, ybound1 = data.width-resetWidth, data.height-resetHeight
     xbound2, ybound2 = data.width, data.height
-    print(data.mouseX, data.mouseY)
-    print(xbound1, xbound2)
-    print(ybound1, ybound2)
+    #print(data.mouseX, data.mouseY)
+    #print(xbound1, xbound2)
+    #print(ybound1, ybound2)
     if (data.mouseX >= xbound1 and data.mouseX <= xbound2):
         if data.mouseY >= ybound1 and data.mouseY <= ybound2:
             data.resetButtonPressed = True
