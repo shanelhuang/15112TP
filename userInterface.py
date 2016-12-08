@@ -49,9 +49,11 @@ def init(data):
     data.skipButtonPressed = False
     data.rapOffButtonPressed = False
     data.stopButtonPressed = False
+    data.rapOffScreenDrawn = False
     data.verseCount = 0
     data.recordTime = 5
     data.speech = ""
+    data.response = ""
     data.speechList = []
     data.probDict = processAllTexts()
     data.bot1, data.bot2 = "", ""
@@ -599,6 +601,9 @@ def formatText(text):
     newText = removePunctuation(newText)
     newText = newText.replace("\n", " ")
     newText = newText.replace("\xe2\x80\xa8", " ") #unicode line separator
+    newText = newText.replace("\xe2\x80\x99", " ")
+    newText = newText.replace("\xe2\x80\x94", " ")
+    newText = newText.replace("\xe2\x80\x98", " ")
     return newText
     
 def updateNumOccurences(text, frequencyDict):
@@ -735,10 +740,11 @@ def generateResponse(speechList, probDict):
     numVerses = pickVerseLength()
     response = ""
     acceptableRhymeList = []
+    #print("speechList", speechList)
     for x in range(numVerses):
         if x % 2 == 0:
             rhymeWord = getLastWord(speechList, probDict)
-            acceptableRhymeList = getAceptableRhymes(rhymeWord, probDict)
+            acceptableRhymeList = getAcceptableRhymes(rhymeWord, probDict)
         else:
             if len(acceptableRhymeList) > 0:
                 rhymeWord = random.choice(acceptableRhymeList)
@@ -756,6 +762,7 @@ def pickVerseLength():
     return lines
     
 def getLastWord(speechList, probDict):
+    #returns one word
     #first tries to find a word that has rhymes that are also in probDict
     lastWord = -1
     for word in speechList:
@@ -796,7 +803,11 @@ def getRhymes(word): #returns list of words that rhyme with given word
     rhymeList = []
     rhymes = []
     if isinstance(word, str):
-        rhymes = pronouncing.rhymes(word)
+        try:
+            rhymes = pronouncing.rhymes(word)
+        except:
+            print("could not find rhymes")
+            print(word)
     for element in rhymes:
         try: 
             rhymeList += [str(element)]
@@ -804,7 +815,7 @@ def getRhymes(word): #returns list of words that rhyme with given word
             print("could not parse as string")
     return rhymeList
 
-def getAceptableRhymes(word, probDict): 
+def getAcceptableRhymes(word, probDict): 
     #returns a list of words that rhyme with words and are also in probDict
     acceptableRhymes = []
     rhymeList = getRhymes(word)
@@ -829,21 +840,25 @@ def rapOffScreenTimerFired(data):
     stopButtonPressed(data)
     if data.stopButtonPressed == False:
         alternateBots(data)
+    else:
+        init(data)
 
 def alternateBots(data):
+    print("verseCount: ", data.verseCount)
     if data.verseCount == 0: #generate starting verse
         data.bot1 = generateResponse(data.speechList, data.probDict)
-        #print("bot1", data.bot1)
-    else:
         data.verseCount += 1
+        print("bot1", data.bot1)
+    else:
         if data.verseCount % 2 == 1: #bot2's turn
             temp = data.bot1
-            data.bot2 = generateResponse(list(temp), data.probDict)
+            data.bot2 = generateResponse(temp.split(), data.probDict)
             #print("bot1", temp)
         else: #bot1's turn
             temp = data.bot2
-            data.bot1 = generateResponse(list(temp), data.probDict)
+            data.bot1 = generateResponse(temp.split(), data.probDict)
             #print("bot2", temp)
+        data.verseCount += 1
     
 def rapOffScreenRedrawAll(canvas, data):
     canvas.create_rectangle(0, 0, data.width, data.height, 
@@ -860,21 +875,28 @@ def rapOffScreenRedrawAll(canvas, data):
     canvas.create_text(x, y, text = "STOP", fill = "black",
                                                 font = "Times 15 bold")
     drawRapOffBots(canvas, data)
-    if data.stopButtonPressed == False:
+    drawBotResponses(canvas, data)
+    """if data.rapOffScreenDrawn == False:
         drawBotResponses(canvas, data)
-        """response = data.response.replace("\n", " ")
+        data.rapOffScreenDrawn = True
+        return
+    if data.rapoffScreenDrawn == True:
+        if data.verseCount % 2 == 1:
+            data.response = data.bot2.replace("\n", " ")
+        else:
+            data.response = data.bot1.replace("\n", " ")
+        response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
         data.responseSpoken = True"""
 
 def drawBotResponses(canvas, data):
+    margin = 20
     firstx, firsty = data.width/2, (data.height/2)/2
-    secondx, secondy = data.width/2, data.height/2 - 40
-    print("bot1 ", data.bot1)
-    print("bot2 ", data.bot2)
+    secondx, secondy = data.width/2, getMiddle(data.height-margin,data.height/2)
     canvas.create_text(firstx, firsty, text = data.bot1, fill = "white",
-                                                        font = "Times 12")
+                                                        font = "Times 15")
     canvas.create_text(secondx, secondy, text = data.bot2, fill = "white",
-                                                        font = "Times 12")
+                                                        font = "Times 15")
                                                         
 def stopButtonPressed(data):
     buttonWidth, buttonHeight = 50, 40
@@ -893,7 +915,6 @@ def drawRapOffBots(canvas, data):
                                                         font = "Times 15")
     canvas.create_text(data.width/2, (data.height-margin)/2 + margin, 
                         text = "BOT 2", fill = "white", font = "Times 15")
-
     
 ###########################################
 # run function modified from 15-112 course notes
