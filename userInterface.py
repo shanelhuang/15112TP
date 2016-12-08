@@ -821,7 +821,7 @@ def rapOffScreenMousePressed(event, data):
     data.mouseX = event.x
     data.mouseY = event.y
     
-def rapOffKeyPressed(event, data):
+def rapOffScreenKeyPressed(event, data):
     pass
 
 def rapOffScreenTimerFired(data):
@@ -861,12 +861,21 @@ def rapOffScreenRedrawAll(canvas, data):
                                                 font = "Times 15 bold")
     drawRapOffBots(canvas, data)
     if data.stopButtonPressed == False:
-        print("helloE")
         drawBotResponses(canvas, data)
         """response = data.response.replace("\n", " ")
         os.system("say" + " " + response)
         data.responseSpoken = True"""
 
+def drawBotResponses(canvas, data):
+    firstx, firsty = data.width/2, (data.height/2)/2
+    secondx, secondy = data.width/2, data.height/2 - 40
+    print("bot1 ", data.bot1)
+    print("bot2 ", data.bot2)
+    canvas.create_text(firstx, firsty, text = data.bot1, fill = "white",
+                                                        font = "Times 12")
+    canvas.create_text(secondx, secondy, text = data.bot2, fill = "white",
+                                                        font = "Times 12")
+                                                        
 def stopButtonPressed(data):
     buttonWidth, buttonHeight = 50, 40
     margin = 30
@@ -885,8 +894,6 @@ def drawRapOffBots(canvas, data):
     canvas.create_text(data.width/2, (data.height-margin)/2 + margin, 
                         text = "BOT 2", fill = "white", font = "Times 15")
 
-def drawBotResponses(canvas, data):
-    pass
     
 ###########################################
 # run function modified from 15-112 course notes
