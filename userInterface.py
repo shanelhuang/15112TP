@@ -51,11 +51,11 @@ def init(data):
     data.stopButtonPressed = False
     data.rapOffScreenDrawn = False
     data.verseCount = 0
-    data.recordTime = 5
+    data.recordTime = 5 #default record time, used if none selected
     data.speech = ""
     data.response = ""
     data.speechList = []
-    data.probDict = processAllTexts()
+    data.probDict = processAllTexts() #processes text once for each generation
     data.bot1, data.bot2 = "", ""
     
 def mousePressed(event, data):
@@ -69,7 +69,7 @@ def mousePressed(event, data):
         responseScreenMousePressed(event, data)
     elif data.currentScreen == "rapOff":
         rapOffScreenMousePressed(event, data)
-    else: 
+    else:  #default goes to info screen
         infoScreenMousePressed(event, data)
     
 def keyPressed(event, data):
@@ -83,7 +83,7 @@ def keyPressed(event, data):
         responseScreenKeyPressed(event, data)
     elif data.currentScreen == "rapOff":
         rapOffScreenKeyPressed(event, data)
-    else: 
+    else:  #default goes to info screen
         infoScreenKeyPressed(event, data)
     
 def timerFired(data):
@@ -97,7 +97,7 @@ def timerFired(data):
         responseScreenTimerFired(data)
     elif data.currentScreen == "rapOff":
         rapOffScreenTimerFired(data)
-    else:
+    else: #default goes to info screen
         infoScreenTimerFired(data)
     
 def redrawAll(canvas, data):
@@ -111,7 +111,7 @@ def redrawAll(canvas, data):
         responseScreenRedrawAll(canvas, data)
     elif data.currentScreen == "rapOff":
         rapOffScreenRedrawAll(canvas, data)
-    else:
+    else: #default goes to info screen
         infoScreenRedrawAll(canvas, data)
 
 ###########################################
@@ -135,6 +135,7 @@ def homeScreenKeyPressed(event, data):
     pass
 
 def homeScreenTimerFired(data):
+    #checks for flow from home to other screens
     beginButtonPressed(data)
     infoButtonPressed(data)
     rapOffButtonPressed(data)
@@ -147,7 +148,7 @@ def homeScreenTimerFired(data):
         data.beginButtonPressed = False
     
 def rapOffButtonPressed(data):
-    #option to start computer rap off
+    #checks if option to start computer rap off is selected
     rapOffMargin, rapOffHeight = 70, 40
     offset = 75
     xbound1, xbound2 = data.width/2-rapOffMargin, data.width/2+rapOffMargin
@@ -174,6 +175,7 @@ def homeScreenRedrawAll(canvas, data):
     drawBeginButton(canvas, data)
 
 def drawRapOffButton(canvas, data):
+    #draws one button on home screen "computer rap off"
     rapOffMargin, rapOffHeight = 70, 40
     offset = 75
     canvas.create_rectangle(data.width/2-rapOffMargin, data.height/2+offset, 
@@ -185,6 +187,7 @@ def drawRapOffButton(canvas, data):
                                     font = "Helvetica 15")
 
 def drawBeginButton(canvas, data):
+    #draws one button: "begin"
     beginMargin, beginHeight = 70, 40
     canvas.create_rectangle(data.width/2-beginMargin, data.height/2, 
             data.width/2+beginMargin, data.height/2+beginHeight, fill = "gray")
@@ -386,6 +389,7 @@ def drawTimeButtons(canvas, data):
                                         font = "Helvetica 15")
     
 def getMiddle(x1, x2):
+    #returns the middle value of 2 numbers
     return (float(x1)+x2)/2
     
 def audioScreenRedrawAll(canvas, data):
@@ -402,6 +406,7 @@ def audioScreenRedrawAll(canvas, data):
     drawSkipRecord(canvas, data)
     
 def drawSkipRecord(canvas, data):
+    #draws one button on audio screen: "skip"
     skipMargin = 30
     option = "OR skip recording and generate a random verse: "
     canvas.create_text(data.width/2, data.height/2 + skipMargin, 
@@ -415,6 +420,7 @@ def drawSkipRecord(canvas, data):
             text = "SKIP", fill = "black")
     
 def skipButtonPressed(data):
+    #checks if skip button is pressed
     skipMargin = 30
     buttonWidth, buttonHeight = 50, 40
     xbound1, xbound2 = data.width/2-buttonWidth, data.width/2+buttonWidth
@@ -540,9 +546,11 @@ def processingScreenTimerFired(data):
     infoButtonPressed(data)
     responseButtonPressed(data)
     if data.responseButtonPressed == True:
+        #reset mouse position after pressing button to prevent double click
         data.mouseX = 0
         data.mouseY = 0
         data.currentScreen = "response"
+        #reset button setting
         data.responseButtonPressed = False
 
 def responseButtonPressed(data):
@@ -560,13 +568,13 @@ def processingScreenRedrawAll(canvas, data):
     drawInfoButton(canvas, data)
     data.speech = formatSpeech(data.speech)
     words = "Rap Battle Bot thinks you said: \n" + "\'" + data.speech + "\'"
-    margin = 100
+    margin = 100 #distance from center
     canvas.create_text(data.width/2, data.height/2-margin, 
                 text = words, fill = "white", font = "Helvetica 20 bold")
     generateMargin, generateHeight = 100, 40
     canvas.create_rectangle(data.width/2-generateMargin, data.height/2, 
         data.width/2+generateMargin, data.height/2+generateHeight, fill = "gray")
-    generateTextMargin = 20
+    generateTextMargin = 20 #distance between texts
     canvas.create_text(data.width/2, data.height/2+generateTextMargin, 
         text = "Generate Response Verse", fill = "black", font = "Helvetica 15")
         
@@ -748,6 +756,8 @@ def generateResponse(speechList, probDict):
             rhymeWord = getLastWord(speechList, probDict)
             if rhymeWord in speechList: #to prevent repeats
                 speechList.remove(rhymeWord)
+                #speech list now doesn't include previous word
+                #forces program to choose another word to rhyme with
             acceptableRhymeList = getAcceptableRhymes(rhymeWord, probDict)
         else:
             if len(acceptableRhymeList) > 0:
@@ -809,7 +819,7 @@ def getRhymes(word): #returns list of words that rhyme with given word
     if isinstance(word, str):
         try:
             rhymes = pronouncing.rhymes(word)
-        except:
+        except: # to prevent crash in case of no existing rhymes
             print("could not find rhymes")
             print(word)
     for element in rhymes:
@@ -840,11 +850,12 @@ def rapOffScreenKeyPressed(event, data):
     pass
 
 def rapOffScreenTimerFired(data):
+    #every time the timer is fired, generate response from a different bot
     infoButtonPressed(data)
     stopButtonPressed(data)
     if data.stopButtonPressed == False:
         alternateBots(data)
-    else:
+    else: #stop button pressed defaults back to home screen
         init(data)
 
 def alternateBots(data):
@@ -880,18 +891,6 @@ def rapOffScreenRedrawAll(canvas, data):
                                                 font = "Times 15 bold")
     drawRapOffBots(canvas, data)
     drawBotResponses(canvas, data)
-    """if data.rapOffScreenDrawn == False:
-        drawBotResponses(canvas, data)
-        data.rapOffScreenDrawn = True
-        return
-    if data.rapoffScreenDrawn == True:
-        if data.verseCount % 2 == 1:
-            data.response = data.bot2.replace("\n", " ")
-        else:
-            data.response = data.bot1.replace("\n", " ")
-        response = data.response.replace("\n", " ")
-        os.system("say" + " " + response)
-        data.responseSpoken = True"""
 
 def drawBotResponses(canvas, data):
     margin = 20

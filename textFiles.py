@@ -209,10 +209,10 @@ def readFile(filename, mode="rt"): # taken from 15-112 course notes
     with open(filename, mode) as fin:
         return fin.read()
         
+
 probDict = processAllTexts()
-speechList = "random words about something important like world peace and education".split()
-#print("333" + getLastWord([], probDict))
-#print(makeRapVerse(speechList, probDict))
-print(generateResponse(speechList, probDict))
-#word = "3"
+#speechList = y.split()
+#print("" + getLastWord([], probDict))
+print(makeRapVerse(speechList, probDict))
+#print(generateResponse(speechList, probDict))
 #print(prevWord(word, probDict))
