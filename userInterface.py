@@ -147,6 +147,7 @@ def homeScreenTimerFired(data):
         data.beginButtonPressed = False
     
 def rapOffButtonPressed(data):
+    #option to start computer rap off
     rapOffMargin, rapOffHeight = 70, 40
     offset = 75
     xbound1, xbound2 = data.width/2-rapOffMargin, data.width/2+rapOffMargin
@@ -205,8 +206,8 @@ def infoScreenKeyPressed(event, data):
 def infoScreenTimerFired(data):
     backButtonPressed(data)
     if data.backButtonPressed == True:
-        data.mouseX, data.mouseY = 0, 0
-        data.currentScreen = data.prevScreen
+        data.mouseX, data.mouseY = 0, 0 # reset mouse position
+        data.currentScreen = data.prevScreen #keeps track of return screen
         data.backButtonPressed = False
     
 def infoScreenRedrawAll(canvas, data):
@@ -233,6 +234,7 @@ def infoScreenRedrawAll(canvas, data):
                     text = textList[i], fill = "white", font = "Times 15" )
 
 def drawBackButton(canvas, data):
+    #returns to previous screen when pressed
     backWidth, backHeight = 125, 40
     x1, y1 = data.width-backWidth, data.height-backHeight
     canvas.create_rectangle(x1, y1, data.width, data.height, fill = "gray")
@@ -508,7 +510,7 @@ def record(data):
     for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         data = stream.read(CHUNK)
         frames.append(data)
-
+        
     print("finished recording")
 
     #stop recording
@@ -744,6 +746,8 @@ def generateResponse(speechList, probDict):
     for x in range(numVerses):
         if x % 2 == 0:
             rhymeWord = getLastWord(speechList, probDict)
+            if rhymeWord in speechList: #to prevent repeats
+                speechList.remove(rhymeWord)
             acceptableRhymeList = getAcceptableRhymes(rhymeWord, probDict)
         else:
             if len(acceptableRhymeList) > 0:

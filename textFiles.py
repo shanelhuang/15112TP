@@ -89,12 +89,12 @@ def getRhymes(word): #returns list of words that rhyme with given word
     rhymeList = []
     rhymes = []
     if isinstance(word, str):
-        print("word: " + word)
+        #print("word: " + word)
         try:
             rhymes = pronouncing.rhymes(word)
         except:
             print("could not find rhymes")
-            print(word)
+            #print(word)
     for element in rhymes:
         try: 
             rhymeList += [str(element)]
@@ -210,9 +210,9 @@ def readFile(filename, mode="rt"): # taken from 15-112 course notes
         return fin.read()
         
 probDict = processAllTexts()
-speechList = ["hi", "my", "name", "is", "drink"]
+speechList = "random words about something important like world peace and education".split()
 #print("333" + getLastWord([], probDict))
 #print(makeRapVerse(speechList, probDict))
-#print(generateResponse(speechList, probDict))
-word = "3"
-print(prevWord(word, probDict))
+print(generateResponse(speechList, probDict))
+#word = "3"
+#print(prevWord(word, probDict))
